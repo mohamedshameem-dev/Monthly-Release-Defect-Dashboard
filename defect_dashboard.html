@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monthly Release Defect Dashboard — March 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d12;
+    --surface: #111620;
+    --surface2: #1a2030;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #39e57a;
+    --accent4: #ffd700;
+    --critical: #ff3b5c;
+    --high: #ff6b35;
+    --medium: #ffd700;
+    --low: #39e57a;
+    --text: #e8edf5;
+    --text-muted: #6b7a99;
+    --text-dim: #3d4f70;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+    font-size: 13px;
+  }
+  /* HEADER */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-left .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header-left h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .header-left h1 span { color: var(--accent); }
+  .header-meta {
+    text-align: right;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+  .live-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    background: var(--accent3);
+    border-radius: 50%;
+    margin-right: 5px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* GRID LAYOUT */
+  .grid { display: grid; gap: 16px; }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-12 { grid-template-columns: 1fr 2fr; }
+
+  /* SECTION HEADERS */
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px;
+  }
+  .card.accent-border-top { border-top: 2px solid var(--accent); }
+  .card.accent-border-red { border-top: 2px solid var(--critical); }
+  .card.accent-border-green { border-top: 2px solid var(--accent3); }
+  .card.accent-border-orange { border-top: 2px solid var(--high); }
+  .card.accent-border-yellow { border-top: 2px solid var(--accent4); }
+
+  /* KPI CARDS */
+  .kpi-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .kpi-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .kpi-sub b { color: var(--text); }
+  .tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .tag-red { background: rgba(255,59,92,0.15); color: var(--critical); border: 1px solid rgba(255,59,92,0.3); }
+  .tag-green { background: rgba(57,229,122,0.12); color: var(--accent3); border: 1px solid rgba(57,229,122,0.25); }
+  .tag-blue { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.25); }
+  .tag-orange { background: rgba(255,107,53,0.12); color: var(--high); border: 1px solid rgba(255,107,53,0.25); }
+  .tag-yellow { background: rgba(255,215,0,0.1); color: var(--accent4); border: 1px solid rgba(255,215,0,0.25); }
+
+  /* BAR CHARTS */
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .bar-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    width: 110px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s ease;
+  }
+  .bar-count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text);
+    width: 20px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* DONUT */
+  .donut-wrap {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .donut-svg { flex-shrink: 0; }
+  .legend { flex: 1; }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 11px;
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .legend-name { color: var(--text-muted); flex: 1; }
+  .legend-val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  thead th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr {
+    border-bottom: 1px solid rgba(30,45,69,0.5);
+    transition: background 0.15s;
+  }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td {
+    padding: 8px 10px;
+    color: var(--text-muted);
+    vertical-align: middle;
+  }
+  tbody td:first-child { color: var(--text); }
+
+  /* STATUS PILLS */
+  .pill {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .pill-closed { background: rgba(57,229,122,0.12); color: var(--accent3); }
+  .pill-open { background: rgba(255,59,92,0.12); color: var(--critical); }
+  .pill-resolved { background: rgba(0,212,255,0.1); color: var(--accent); }
+  .pill-inprogress { background: rgba(255,215,0,0.1); color: var(--accent4); }
+  .pill-reopened { background: rgba(255,107,53,0.12); color: var(--high); }
+  .pill-deferred { background: rgba(107,122,153,0.12); color: var(--text-muted); }
+
+  /* TREND SPARKLINE */
+  .spark-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 40px;
+    margin-top: 8px;
+  }
+  .spark-bar {
+    flex: 1;
+    border-radius: 2px 2px 0 0;
+  }
+
+  /* METRIC ROW */
+  .metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .metric-row:last-child { border-bottom: none; }
+  .metric-name {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .metric-val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* AGING BAR */
+  .aging-bar-wrap {
+    margin-bottom: 14px;
+  }
+  .aging-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 11px;
+  }
+  .aging-track {
+    height: 10px;
+    background: var(--surface2);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .aging-fill {
+    height: 100%;
+    border-radius: 5px;
+  }
+
+  /* RCA RADAR-LIKE TABLE */
+  .rca-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .rca-item:last-child { border-bottom: none; }
+  .rca-icon {
+    font-size: 16px;
+    width: 28px;
+    text-align: center;
+  }
+  .rca-info { flex: 1; }
+  .rca-name { font-size: 12px; color: var(--text); margin-bottom: 3px; }
+  .rca-track {
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .rca-fill { height: 100%; border-radius: 2px; }
+  .rca-count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  /* ALERT BOX */
+  .alert-box {
+    background: rgba(255,59,92,0.06);
+    border: 1px solid rgba(255,59,92,0.25);
+    border-left: 3px solid var(--critical);
+    border-radius: 5px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .alert-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--critical);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .alert-text { font-size: 11px; color: var(--text-muted); }
+
+  /* SECTION WRAPPER */
+  .section { margin-bottom: 28px; }
+
+  /* SCROLL FADE IN */
+  .card { animation: fadeUp 0.4s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  /* PROGRESS RING */
+  .progress-ring-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .progress-ring-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  @media (max-width: 900px) {
+    .grid-4 { grid-template-columns: repeat(2,1fr); }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .grid-12 { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="header">
+  <div class="header-left">
+    <div class="badge">// Ecommerce QA Intelligence</div>
+    <h1>Monthly Release <span>Defect Dashboard</span></h1>
+    <div style="margin-top:8px; font-size:11px; color:var(--text-muted);">
+      Sprint Period: <b style="color:var(--text)">March 2025</b> &nbsp;·&nbsp; Releases: <b style="color:var(--text)">R01, R02, R03</b> &nbsp;·&nbsp; Platforms: <b style="color:var(--text)">Flipkart, Meesho, Myntra, Amazon IN, Nykaa</b>
+    </div>
+  </div>
+  <div class="header-meta">
+    <div><span class="live-dot"></span>LIVE DATA</div>
+    <div>Generated: 18 Apr 2025</div>
+    <div>Total Defects: 12</div>
+    <div>Data Source: Ecommerce_Defect_List.xlsx</div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 1: EXECUTIVE SUMMARY ═══ -->
+<div class="section">
+  <div class="section-label">01 — Executive Summary</div>
+
+  <!-- Critical Alert -->
+  <div class="alert-box">
+    <div class="alert-title">⚠ CRITICAL OPEN ITEMS REQUIRE IMMEDIATE ATTENTION</div>
+    <div class="alert-text">DEF-011: Refund ₹4,999 stuck — RBI compliance risk (Production) &nbsp;|&nbsp; DEF-004: Return window logic incorrect (UAT) &nbsp;|&nbsp; 4 defects unresolved across R01–R02</div>
+  </div>
+
+  <div class="grid grid-4">
+    <!-- Total Defects -->
+    <div class="card accent-border-top">
+      <div class="kpi-label">Total Defects</div>
+      <div class="kpi-value" style="color:var(--accent)">12</div>
+      <div class="kpi-sub" style="margin-bottom:8px;">Across R01, R02, R03</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <span class="tag tag-blue">R01: 6</span>
+        <span class="tag tag-blue">R02: 5</span>
+        <span class="tag tag-blue">R03: 1</span>
+      </div>
+    </div>
+
+    <!-- Open vs Closed -->
+    <div class="card accent-border-red">
+      <div class="kpi-label">Open vs Closed</div>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:8px;">
+        <div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:700;color:var(--critical)">5</div>
+          <div style="font-size:10px;color:var(--text-muted)">Open / Active</div>
+        </div>
+        <div style="font-size:20px;color:var(--text-dim)">vs</div>
+        <div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:700;color:var(--accent3)">7</div>
+          <div style="font-size:10px;color:var(--text-muted)">Closed / Resolved</div>
+        </div>
+      </div>
+      <!-- Mini progress bar -->
+      <div style="height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;">
+        <div style="width:58.3%;height:100%;background:var(--accent3);border-radius:3px;"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">58.3% closure rate</div>
+    </div>
+
+    <!-- Defect Density -->
+    <div class="card accent-border-green">
+      <div class="kpi-label">Defect Density</div>
+      <div class="kpi-value" style="color:var(--accent3)">2.4</div>
+      <div class="kpi-sub">defects per module</div>
+      <div style="margin-top:8px;font-size:10px;color:var(--text-muted)">5 modules · 12 defects total</div>
+      <div style="margin-top:6px;">
+        <span class="tag tag-orange">Critical density: P1×3</span>
+      </div>
+    </div>
+
+    <!-- MTTR / Change -->
+    <div class="card accent-border-yellow">
+      <div class="kpi-label">Release Health</div>
+      <div class="kpi-value" style="color:var(--accent4)">4.2d</div>
+      <div class="kpi-sub">Avg. MTTR (resolved defects)</div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">
+        <div style="font-size:10px;color:var(--text-muted)">Reopen Rate: <b style="color:var(--high)">8.3%</b> (1 of 12)</div>
+        <div style="font-size:10px;color:var(--text-muted)">P1 Pending: <b style="color:var(--critical)">1 OPEN</b></div>
+        <span class="tag tag-red" style="width:fit-content;margin-top:2px;">⚠ Compliance Risk</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 2: DEFECT CATEGORIES ═══ -->
+<div class="section">
+  <div class="section-label">02 — Defect Categories</div>
+  <div class="grid grid-2">
+
+    <!-- Severity -->
+    <div class="card">
+      <div style="font-size:11px;font-weight:600;margin-bottom:14px;color:var(--text)">By Severity</div>
+
+      <div class="bar-row">
+        <div class="bar-label">🔴 Critical</div>
+        <div class="bar-track"><div class="bar-fill" style="width:25%;background:var(--critical);"></div></div>
+        <div class="bar-count">3</div>
+        <span class="tag tag-red">25%</span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">🟠 High</div>
+        <div class="bar-track"><div class="bar-fill" style="width:33.3%;background:var(--high);"></div></div>
+        <div class="bar-count">4</div>
+        <span class="tag tag-orange">33%</span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">🟡 Medium</div>
+        <div class="bar-track"><div class="bar-fill" style="width:25%;background:var(--accent4);"></div></div>
+        <div class="bar-count">3</div>
+        <span class="tag tag-yellow">25%</span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">🟢 Low</div>
+        <div class="bar-track"><div class="bar-fill" style="width:16.7%;background:var(--accent3);"></div></div>
+        <div class="bar-count">2</div>
+        <span class="tag tag-green">17%</span>
+      </div>
+
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--text-muted)">Critical+High = <b style="color:var(--critical)">58%</b> of all defects — high risk release</div>
+      </div>
+    </div>
+
+    <!-- Priority -->
+    <div class="card">
+      <div style="font-size:11px;font-weight:600;margin-bottom:14px;color:var(--text)">By Priority</div>
+
+      <div class="bar-row">
+        <div class="bar-label">P1 — Blocker</div>
+        <div class="bar-track"><div class="bar-fill" style="width:25%;background:var(--critical);"></div></div>
+        <div class="bar-count">3</div>
+        <span class="tag tag-red">25%</span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">P2 — Major</div>
+        <div class="bar-track"><div class="bar-fill" style="width:33.3%;background:var(--high);"></div></div>
+        <div class="bar-count">4</div>
+        <span class="tag tag-orange">33%</span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">P3 — Normal</div>
+        <div class="bar-track"><div class="bar-fill" style="width:33.3%;background:var(--accent4);"></div></div>
+        <div class="bar-count">4</div>
+        <span class="tag tag-yellow">33%</span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">P4 — Minor</div>
+        <div class="bar-track"><div class="bar-fill" style="width:16.7%;background:var(--accent3);"></div></div>
+        <div class="bar-count">2</div>
+        <span class="tag tag-green">17%</span>
+      </div>
+
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--text-muted)">P1 open: DEF-011 (Refund Engine) — <b style="color:var(--critical)">ESCALATE</b></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 3: LIFECYCLE INSIGHTS ═══ -->
+<div class="section">
+  <div class="section-label">03 — Lifecycle Insights</div>
+  <div class="grid grid-3">
+    <div class="card">
+      <div class="kpi-label">Newly Reported</div>
+      <div class="kpi-value" style="color:var(--accent)">12</div>
+      <div class="kpi-sub">This sprint (Mar 01–18)</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">In Progress</div>
+      <div class="kpi-value" style="color:var(--accent4)">2</div>
+      <div class="kpi-sub">DEF-007, DEF-010 active</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">Resolved + Closed</div>
+      <div class="kpi-value" style="color:var(--accent3)">7</div>
+      <div class="kpi-sub">5 Closed · 1 Resolved · 1 Reopened</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">Open (Unresolved)</div>
+      <div class="kpi-value" style="color:var(--critical)">3</div>
+      <div class="kpi-sub">DEF-004, DEF-009, DEF-011</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">Reopened</div>
+      <div class="kpi-value" style="color:var(--high)">1</div>
+      <div class="kpi-sub">DEF-008 (OTP session — iOS Safari)</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">Deferred / Rejected</div>
+      <div class="kpi-value" style="color:var(--text-muted)">0</div>
+      <div class="kpi-sub">No deferrals this sprint</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 4: DISTRIBUTION ═══ -->
+<div class="section">
+  <div class="section-label">04 — Distribution</div>
+  <div class="grid grid-2">
+
+    <!-- By Module -->
+    <div class="card">
+      <div style="font-size:11px;font-weight:600;margin-bottom:14px;color:var(--text)">By Module / Feature</div>
+
+      <div class="bar-row">
+        <div class="bar-label" title="Payment Module">Payment Module</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--critical);"></div></div>
+        <div class="bar-count">1</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label" title="OMS">OMS</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--high);"></div></div>
+        <div class="bar-count">1</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label" title="Inventory Service">Inventory Svc</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent4);"></div></div>
+        <div class="bar-count">1</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label" title="Returns Module">Returns Module</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--high);"></div></div>
+        <div class="bar-count">1</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label" title="Promotions Engine">Promotions Eng</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--critical);"></div></div>
+        <div class="bar-count">1</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label" title="Logistics Engine">Logistics Eng</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent4);"></div></div>
+        <div class="bar-count">1</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label" title="Notification Service">Notification Svc</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent4);"></div></div>
+        <div class="bar-count">1</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label" title="User Profile Service">User Profile Svc</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent4);"></div></div>
+        <div class="bar-count">1</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label" title="Search Service">Search Service</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent3);"></div></div>
+        <div class="bar-count">1</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label" title="Checkout Service">Checkout Svc</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--high);"></div></div>
+        <div class="bar-count">1</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label" title="Refund Engine">Refund Engine</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--critical);"></div></div>
+        <div class="bar-count">1</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label" title="Analytics Dashboard">Analytics Dash</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent3);"></div></div>
+        <div class="bar-count">1</div>
+      </div>
+    </div>
+
+    <!-- By Environment -->
+    <div class="card">
+      <div style="font-size:11px;font-weight:600;margin-bottom:16px;color:var(--text)">By Environment</div>
+
+      <!-- Donut SVG -->
+      <div class="donut-wrap">
+        <svg class="donut-svg" width="120" height="120" viewBox="0 0 120 120">
+          <!-- Production: 5/12 = 150° -->
+          <circle cx="60" cy="60" r="45" fill="none" stroke="var(--surface2)" stroke-width="18"/>
+          <!-- Production -->
+          <circle cx="60" cy="60" r="45" fill="none" stroke="#ff3b5c" stroke-width="18"
+            stroke-dasharray="117.8 165.4" stroke-dashoffset="235.6" transform="rotate(-90 60 60)"/>
+          <!-- Staging -->
+          <circle cx="60" cy="60" r="45" fill="none" stroke="#ffd700" stroke-width="18"
+            stroke-dasharray="94.2 189" stroke-dashoffset="117.8" transform="rotate(-90 60 60)"/>
+          <!-- UAT -->
+          <circle cx="60" cy="60" r="45" fill="none" stroke="#00d4ff" stroke-width="18"
+            stroke-dasharray="70.7 212.5" stroke-dashoffset="23.6" transform="rotate(-90 60 60)"/>
+          <!-- QA -->
+          <circle cx="60" cy="60" r="45" fill="none" stroke="#39e57a" stroke-width="18"
+            stroke-dasharray="23.6 259.6" stroke-dashoffset="-47.1" transform="rotate(-90 60 60)"/>
+          <text x="60" y="55" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="18" font-weight="700" fill="#e8edf5">12</text>
+          <text x="60" y="70" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif" font-size="8" fill="#6b7a99">DEFECTS</text>
+        </svg>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--critical)"></div>
+            <span class="legend-name">Production</span>
+            <span class="legend-val">5 <span style="color:var(--text-muted);font-size:9px">(42%)</span></span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--accent4)"></div>
+            <span class="legend-name">Staging</span>
+            <span class="legend-val">4 <span style="color:var(--text-muted);font-size:9px">(33%)</span></span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--accent)"></div>
+            <span class="legend-name">UAT</span>
+            <span class="legend-val">2 <span style="color:var(--text-muted);font-size:9px">(17%)</span></span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:var(--accent3)"></div>
+            <span class="legend-name">QA / SIT</span>
+            <span class="legend-val">1 <span style="color:var(--text-muted);font-size:9px">(8%)</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;padding:10px;background:rgba(255,59,92,0.06);border-radius:4px;border:1px solid rgba(255,59,92,0.2)">
+        <div style="font-size:10px;color:var(--text-muted)">⚠ <b style="color:var(--critical)">42% of defects found in Production</b> — indicates UAT/SIT coverage gaps. Strengthen pre-prod test coverage for Payment, Refund, and Promotions modules.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 5: ROOT CAUSE ANALYSIS ═══ -->
+<div class="section">
+  <div class="section-label">05 — Root Cause Analysis</div>
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;">
+      <div>
+        <div class="rca-item">
+          <div class="rca-icon">🐛</div>
+          <div class="rca-info">
+            <div class="rca-name">Code / Functional Issues</div>
+            <div class="rca-track"><div class="rca-fill" style="width:41.7%;background:var(--critical);"></div></div>
+          </div>
+          <div class="rca-count" style="color:var(--critical)">5</div>
+        </div>
+        <div class="rca-item">
+          <div class="rca-icon">🔗</div>
+          <div class="rca-info">
+            <div class="rca-name">Integration Issues</div>
+            <div class="rca-track"><div class="rca-fill" style="width:16.7%;background:var(--accent);"></div></div>
+          </div>
+          <div class="rca-count" style="color:var(--accent)">2</div>
+        </div>
+        <div class="rca-item">
+          <div class="rca-icon">📋</div>
+          <div class="rca-info">
+            <div class="rca-name">Requirement Gaps / Business Logic</div>
+            <div class="rca-track"><div class="rca-fill" style="width:16.7%;background:var(--accent4);"></div></div>
+          </div>
+          <div class="rca-count" style="color:var(--accent4)">2</div>
+        </div>
+      </div>
+      <div>
+        <div class="rca-item">
+          <div class="rca-icon">⚙️</div>
+          <div class="rca-info">
+            <div class="rca-name">Configuration Issues</div>
+            <div class="rca-track"><div class="rca-fill" style="width:8.3%;background:var(--accent3);"></div></div>
+          </div>
+          <div class="rca-count" style="color:var(--accent3)">1</div>
+        </div>
+        <div class="rca-item">
+          <div class="rca-icon">🔄</div>
+          <div class="rca-info">
+            <div class="rca-name">Data Sync / Quality</div>
+            <div class="rca-track"><div class="rca-fill" style="width:16.7%;background:var(--high);"></div></div>
+          </div>
+          <div class="rca-count" style="color:var(--high)">2</div>
+        </div>
+        <div class="rca-item">
+          <div class="rca-icon">🖥️</div>
+          <div class="rca-info">
+            <div class="rca-name">Performance / Environment</div>
+            <div class="rca-track"><div class="rca-fill" style="width:8.3%;background:var(--text-muted);"></div></div>
+          </div>
+          <div class="rca-count" style="color:var(--text-muted)">1</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:10px;color:var(--text-muted);">
+      🔑 <b style="color:var(--text)">Key Insight:</b> 41.7% of defects stem from code issues — dev-side unit testing and code review practices need strengthening. Data Sync gaps (DEF-003, DEF-006) point to WMS/portal integration SLAs.
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 6: DEFECT AGING ═══ -->
+<div class="section">
+  <div class="section-label">06 — Defect Aging</div>
+  <div class="card">
+    <div style="margin-bottom:6px;font-size:11px;color:var(--text-muted)">Open defects only — based on Start Date vs Apr 18, 2025</div>
+    <div style="height:1px;background:var(--border);margin-bottom:16px;"></div>
+
+    <div class="aging-bar-wrap">
+      <div class="aging-header">
+        <span style="color:var(--critical);font-weight:600">🔴 &gt;30 days (Critical Aging)</span>
+        <span style="font-family:'IBM Plex Mono',monospace;color:var(--critical)">3 defects &nbsp;|&nbsp; 60%</span>
+      </div>
+      <div class="aging-track">
+        <div class="aging-fill" style="width:60%;background:var(--critical);"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">DEF-004 (42d), DEF-007 (37d), DEF-010 (33d) — requires escalation</div>
+    </div>
+
+    <div class="aging-bar-wrap">
+      <div class="aging-header">
+        <span style="color:var(--accent4);font-weight:600">🟡 15–30 days</span>
+        <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent4)">1 defect &nbsp;|&nbsp; 20%</span>
+      </div>
+      <div class="aging-track">
+        <div class="aging-fill" style="width:20%;background:var(--accent4);"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">DEF-009 (34d, R03 — planned next sprint)</div>
+    </div>
+
+    <div class="aging-bar-wrap">
+      <div class="aging-header">
+        <span style="color:var(--accent3);font-weight:600">🟢 &lt;15 days</span>
+        <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent3)">1 defect &nbsp;|&nbsp; 20%</span>
+      </div>
+      <div class="aging-track">
+        <div class="aging-fill" style="width:20%;background:var(--accent3);"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">DEF-011 (32d — escalated P1, RBI compliance)</div>
+    </div>
+
+    <div style="margin-top:12px;padding:10px 12px;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:4px;font-size:10px;color:var(--text-muted);">
+      ⚡ <b style="color:var(--accent4)">60% of open defects are aged >30 days.</b> Immediate triage and PM escalation required for DEF-004, DEF-007, DEF-010, DEF-011.
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 7: TRENDS ═══ -->
+<div class="section">
+  <div class="section-label">07 — Trends</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div style="font-size:11px;font-weight:600;margin-bottom:4px;color:var(--text)">Weekly Defect Arrival vs Closure Rate</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:12px;">Mar 01–18, 2025 · 3 weeks</div>
+
+      <!-- Arrival bars -->
+      <div style="display:flex;gap:3px;align-items:flex-end;height:60px;margin-bottom:4px;">
+        <!-- Week 1 -->
+        <div style="flex:1;display:flex;gap:2px;align-items:flex-end;">
+          <div title="Week 1 Arrivals: 5" style="flex:1;height:60px;background:rgba(255,59,92,0.6);border-radius:2px 2px 0 0;"></div>
+          <div title="Week 1 Closures: 4" style="flex:1;height:48px;background:rgba(57,229,122,0.6);border-radius:2px 2px 0 0;"></div>
+        </div>
+        <!-- Week 2 -->
+        <div style="flex:1;display:flex;gap:2px;align-items:flex-end;">
+          <div title="Week 2 Arrivals: 4" style="flex:1;height:48px;background:rgba(255,59,92,0.6);border-radius:2px 2px 0 0;"></div>
+          <div title="Week 2 Closures: 2" style="flex:1;height:24px;background:rgba(57,229,122,0.6);border-radius:2px 2px 0 0;"></div>
+        </div>
+        <!-- Week 3 -->
+        <div style="flex:1;display:flex;gap:2px;align-items:flex-end;">
+          <div title="Week 3 Arrivals: 3" style="flex:1;height:36px;background:rgba(255,59,92,0.6);border-radius:2px 2px 0 0;"></div>
+          <div title="Week 3 Closures: 1" style="flex:1;height:12px;background:rgba(57,229,122,0.6);border-radius:2px 2px 0 0;"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:2px;">
+        <div style="flex:1;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-muted)">W1<br/>Mar 1–7</div>
+        <div style="flex:1;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-muted)">W2<br/>Mar 8–14</div>
+        <div style="flex:1;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-muted)">W3<br/>Mar 15–18</div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:16px;">
+        <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-muted)">
+          <div style="width:10px;height:10px;background:rgba(255,59,92,0.6);border-radius:2px;"></div>Arrival
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-muted)">
+          <div style="width:10px;height:10px;background:rgba(57,229,122,0.6);border-radius:2px;"></div>Closure
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:var(--text-muted);">
+        Arrival: 5→4→3 (improving) &nbsp;·&nbsp; Closure: 4→2→1 (slowing down ⚠)
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:11px;font-weight:600;margin-bottom:14px;color:var(--text)">Key Trend Metrics</div>
+
+      <div class="metric-row">
+        <div class="metric-name">Reopen Rate</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="metric-val" style="color:var(--high)">8.3%</div>
+          <span class="tag tag-orange">1 of 12</span>
+        </div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-name">Defect Leakage to Prod</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="metric-val" style="color:var(--critical)">41.7%</div>
+          <span class="tag tag-red">5 of 12</span>
+        </div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-name">Weekly Arrival Rate (avg)</div>
+        <div class="metric-val" style="color:var(--accent)">4.0/week</div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-name">Weekly Closure Rate (avg)</div>
+        <div class="metric-val" style="color:var(--accent3)">2.3/week</div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-name">Backlog Growth Rate</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="metric-val" style="color:var(--critical)">+1.7/wk</div>
+          <span class="tag tag-red">GROWING</span>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;padding:10px;background:rgba(255,59,92,0.05);border-radius:4px;border:1px solid rgba(255,59,92,0.2);font-size:10px;color:var(--text-muted)">
+        ⚠ Closure rate (2.3/wk) is <b style="color:var(--critical)">lagging behind</b> arrival rate (4.0/wk). Defect backlog growing by ~1.7/week. Requires immediate team bandwidth review.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 8: LEADERSHIP METRICS ═══ -->
+<div class="section">
+  <div class="section-label">08 — Leadership Metrics</div>
+  <div class="grid grid-4" style="margin-bottom:16px;">
+    <div class="card accent-border-top">
+      <div class="kpi-label">MTTR</div>
+      <div class="kpi-value" style="color:var(--accent)">4.2d</div>
+      <div class="kpi-sub">Mean Time To Resolve<br/>(5 closed defects)</div>
+      <div style="margin-top:8px;font-size:10px;color:var(--text-muted)">Best: 1d (DEF-012) · Worst: 8d (DEF-003)</div>
+    </div>
+    <div class="card accent-border-orange">
+      <div class="kpi-label">Fix Quality (Reopen%)</div>
+      <div class="kpi-value" style="color:var(--high)">8.3%</div>
+      <div class="kpi-sub">1 defect reopened of 12</div>
+      <div style="margin-top:8px;">
+        <span class="tag tag-green">Target: &lt;10%</span>
+      </div>
+    </div>
+    <div class="card accent-border-green">
+      <div class="kpi-label">Closure % by Severity</div>
+      <div style="margin-top:6px;">
+        <div class="metric-row" style="padding:5px 0;">
+          <span style="font-size:10px;color:var(--text-muted)">🔴 Critical</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent3)">67%</span>
+        </div>
+        <div class="metric-row" style="padding:5px 0;">
+          <span style="font-size:10px;color:var(--text-muted)">🟠 High</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent4)">50%</span>
+        </div>
+        <div class="metric-row" style="padding:5px 0;">
+          <span style="font-size:10px;color:var(--text-muted)">🟡 Medium</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent3)">67%</span>
+        </div>
+        <div class="metric-row" style="padding:5px 0;border:none;">
+          <span style="font-size:10px;color:var(--text-muted)">🟢 Low</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent3)">100%</span>
+        </div>
+      </div>
+    </div>
+    <div class="card accent-border-red">
+      <div class="kpi-label">Top 3 Defect Modules</div>
+      <div style="margin-top:10px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:var(--critical)">🥇</div>
+          <div>
+            <div style="font-size:11px;color:var(--text)">Payment + Refund Engine</div>
+            <div style="font-size:10px;color:var(--text-muted)">2 defects · 1 P1 open</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:var(--high)">🥈</div>
+          <div>
+            <div style="font-size:11px;color:var(--text)">OMS + Checkout Svc</div>
+            <div style="font-size:10px;color:var(--text-muted)">2 defects · cross-platform</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:var(--accent4)">🥉</div>
+          <div>
+            <div style="font-size:11px;color:var(--text)">Promotions + Inventory</div>
+            <div style="font-size:10px;color:var(--text-muted)">2 defects · revenue impact</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Defect Table -->
+  <div class="card">
+    <div style="font-size:11px;font-weight:600;margin-bottom:14px;color:var(--text)">Full Defect Register — March 2025</div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Defect ID</th>
+            <th>Title</th>
+            <th>Priority</th>
+            <th>Severity</th>
+            <th>Status</th>
+            <th>Release</th>
+            <th>Module</th>
+            <th>Platform</th>
+            <th>Environment</th>
+            <th>Start Date</th>
+            <th>Resolved Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">DEF-001</td>
+            <td style="max-width:200px;">Payment gateway charges customer twice</td>
+            <td><span class="tag tag-red">P1</span></td>
+            <td><span style="color:var(--critical);font-weight:600">Critical</span></td>
+            <td><span class="pill pill-closed">Closed</span></td>
+            <td>R01</td><td>Payment Module</td><td>Flipkart</td><td>Production</td>
+            <td>Mar 01</td><td>Mar 03</td>
+          </tr>
+          <tr>
+            <td style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">DEF-002</td>
+            <td>Order status stuck at Processing 72h</td>
+            <td><span class="tag tag-orange">P2</span></td>
+            <td><span style="color:var(--high);font-weight:600">High</span></td>
+            <td><span class="pill pill-closed">Closed</span></td>
+            <td>R01</td><td>OMS</td><td>Meesho</td><td>Staging</td>
+            <td>Mar 03</td><td>Mar 06</td>
+          </tr>
+          <tr>
+            <td style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">DEF-003</td>
+            <td>Out-of-stock item allowed at checkout</td>
+            <td><span class="tag tag-orange">P2</span></td>
+            <td><span style="color:var(--high);font-weight:600">High</span></td>
+            <td><span class="pill pill-resolved">Resolved</span></td>
+            <td>R01</td><td>Inventory Service</td><td>Myntra</td><td>Production</td>
+            <td>Mar 05</td><td>Mar 08</td>
+          </tr>
+          <tr>
+            <td style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">DEF-004</td>
+            <td>Return window expired incorrectly</td>
+            <td><span class="tag tag-orange">P2</span></td>
+            <td><span style="color:var(--high);font-weight:600">High</span></td>
+            <td><span class="pill pill-open">Open</span></td>
+            <td>R02</td><td>Returns Module</td><td>Amazon IN</td><td>UAT</td>
+            <td>Mar 07</td><td>—</td>
+          </tr>
+          <tr>
+            <td style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">DEF-005</td>
+            <td>Double discount on flash sale + coupon</td>
+            <td><span class="tag tag-red">P1</span></td>
+            <td><span style="color:var(--critical);font-weight:600">Critical</span></td>
+            <td><span class="pill pill-closed">Closed</span></td>
+            <td>R01</td><td>Promotions Engine</td><td>Nykaa</td><td>Production</td>
+            <td>Mar 09</td><td>Mar 10</td>
+          </tr>
+          <tr>
+            <td style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">DEF-006</td>
+            <td>Order routed to wrong logistics hub</td>
+            <td><span class="tag tag-yellow">P3</span></td>
+            <td><span style="color:var(--accent4);font-weight:600">Medium</span></td>
+            <td><span class="pill pill-closed">Closed</span></td>
+            <td>R01</td><td>Logistics Engine</td><td>Flipkart</td><td>Production</td>
+            <td>Mar 10</td><td>Mar 13</td>
+          </tr>
+          <tr>
+            <td style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">DEF-007</td>
+            <td>Order confirmation email not sent (COD)</td>
+            <td><span class="tag tag-yellow">P3</span></td>
+            <td><span style="color:var(--accent4);font-weight:600">Medium</span></td>
+            <td><span class="pill pill-inprogress">In Progress</span></td>
+            <td>R02</td><td>Notification Svc</td><td>Meesho</td><td>Staging</td>
+            <td>Mar 12</td><td>—</td>
+          </tr>
+          <tr>
+            <td style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">DEF-008</td>
+            <td>OTP update not saved — session timeout</td>
+            <td><span class="tag tag-yellow">P3</span></td>
+            <td><span style="color:var(--accent4);font-weight:600">Medium</span></td>
+            <td><span class="pill pill-reopened">Reopened</span></td>
+            <td>R02</td><td>User Profile Svc</td><td>Myntra</td><td>UAT</td>
+            <td>Mar 14</td><td>Mar 18</td>
+          </tr>
+          <tr>
+            <td style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">DEF-009</td>
+            <td>Sponsored products in Newly Launched</td>
+            <td><span class="tag tag-green">P4</span></td>
+            <td><span style="color:var(--accent3);font-weight:600">Low</span></td>
+            <td><span class="pill pill-open">Open</span></td>
+            <td>R03</td><td>Search Service</td><td>Amazon IN</td><td>QA</td>
+            <td>Mar 15</td><td>—</td>
+          </tr>
+          <tr>
+            <td style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">DEF-010</td>
+            <td>Saved address lost on app ↔ mobile web</td>
+            <td><span class="tag tag-orange">P2</span></td>
+            <td><span style="color:var(--high);font-weight:600">High</span></td>
+            <td><span class="pill pill-inprogress">In Progress</span></td>
+            <td>R02</td><td>Checkout Service</td><td>Nykaa</td><td>Staging</td>
+            <td>Mar 16</td><td>—</td>
+          </tr>
+          <tr>
+            <td style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">DEF-011</td>
+            <td style="color:var(--critical);">Refund ₹4,999 stuck — RBI risk ⚠</td>
+            <td><span class="tag tag-red">P1</span></td>
+            <td><span style="color:var(--critical);font-weight:600">Critical</span></td>
+            <td><span class="pill pill-open">Open</span></td>
+            <td>R01</td><td>Refund Engine</td><td>Flipkart</td><td>Production</td>
+            <td>Mar 17</td><td>—</td>
+          </tr>
+          <tr>
+            <td style="font-family:'IBM Plex Mono',monospace;color:var(--accent)">DEF-012</td>
+            <td>Seller dashboard GMV showing stale data</td>
+            <td><span class="tag tag-green">P4</span></td>
+            <td><span style="color:var(--accent3);font-weight:600">Low</span></td>
+            <td><span class="pill pill-closed">Closed</span></td>
+            <td>R02</td><td>Analytics Dashboard</td><td>Meesho</td><td>Production</td>
+            <td>Mar 18</td><td>Mar 19</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>ECOMMERCE QA · MARCH 2025 RELEASE DEFECT DASHBOARD</span>
+  <span>GENERATED: APR 18, 2025 · SOURCE: ECOMMERCE_DEFECT_LIST.XLSX · 12 RECORDS</span>
+</div>
+
+</body>
+</html>
